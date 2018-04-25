@@ -4,7 +4,7 @@ import { bindActionCreators } from 'redux';
 import { Tabs, Tab } from 'react-bootstrap-tabs';
 import TableComponent from "./TableComponent";
 
-import { addFileToMediaList } from "../actions/mediaActions";
+import { addFileToMediaList, searchForMedia, editFile } from "../actions/mediaActions";
 
 import {
     MediaUploadProps,
@@ -16,7 +16,7 @@ import { IAppState } from '../typings/app';
 
 
 
-class MediaUploadComponent extends React.Component<MediaUploadProps, MediaUploadState> {
+class FormMediaUploadComponent extends React.Component<MediaUploadProps, MediaUploadState> {
 
     private fileUpload: any = null;
 
@@ -25,28 +25,45 @@ class MediaUploadComponent extends React.Component<MediaUploadProps, MediaUpload
         this.state = {
             id: '',
             title: '',
+            searchString: "",
+            editMode: false
+        }
+    }
+
+    componentWillMount() {
+        const { match: { params: { id } } } = this.props;
+        if (!_.isEmpty(id)) {
+            const foundObj : MediaUploadState = _.find(this.props.mediaList, { id: id });
+            if (foundObj){
+                this.setState({
+                    editMode: true,
+                    id: foundObj.id,
+                    title: foundObj.title,
+                    description: foundObj.description,
+                    fullUrl: foundObj.fullUrl
+                })
+            } 
         }
     }
 
     uploadFile(evt: any) {
         evt.preventDefault();
-        if (this.state.file) {
-            if (this.props.addFileToMediaList) {
-                this.props.addFileToMediaList(this.state);
+        if (this.state.editMode){
+            this.props.editFile(this.state);
+        }else{
+            if (this.state.file) {
+                if (this.props.addFileToMediaList) {
+                    this.props.addFileToMediaList(this.state);
+                }
+    
             }
-
-        }
+        }    
     }
 
     handleChange(e: any) {
         this.setState({
             [e.target.id]: e.target.value
         })
-    }
-
-    searchByQuery(e: any) {
-        e.preventDefault();
-        //this.props.searchForMedia(this.state.searchQuery);
     }
 
     fileOnchange(e: any) {
@@ -76,8 +93,7 @@ class MediaUploadComponent extends React.Component<MediaUploadProps, MediaUpload
 
 
     render() {
-        return <Tabs onSelect={(index, label) => console.log(label + ' selected')}>
-            <Tab label="Upload Media Using Form"><div className="row local-media-upload">
+            return <div className="row-12-xs local-media-upload">
                 <form onSubmit={this.uploadFile.bind(this)}>
                     <div className="form-group">
                         <label htmlFor="title">Title</label>
@@ -90,43 +106,31 @@ class MediaUploadComponent extends React.Component<MediaUploadProps, MediaUpload
                     </div>
                     <div className="form-group">
                         <label htmlFor="file">Select media ( accepted : video, image, audio file formats  )</label>
-                        <input type="file" required className="form-control-file" id="file" onChange={this.fileOnchange.bind(this)}
+                        <input type="file" required={!this.state.editMode} className="form-control-file" id="file" onChange={this.fileOnchange.bind(this)}
                             ref={(ref) => this.fileUpload = ref} />
                     </div>
                     <div className="preview">
+                    
                     </div>
-                    <button type="submit" className="btn btn-primary">Add new media</button>
+                    {!this.state.editMode && <button type="submit" className="btn btn-primary">Add new media</button>}
+                    {this.state.editMode && <button type="submit" className="btn btn-primary">Edit</button>}
                 </form>
-            </div></Tab>
-            <Tab label="Upload Media Using NASA Library">
-                <div className="row-12-xs nasa-media-upload">
-                    <div className="col-12-xs">
-                        <form onSubmit={this.searchByQuery.bind(this)}>
-                            <div className="form-group">
-                                <label htmlFor="search">Title</label>
-                                <input type="text" className="form-control" id="search" value="s" aria-describedby="text" required placeholder="Enter serach string" onChange={e => this.handleChange(e)} />
-                                <small id="search" className="form-text text-muted">Please enter name of content that you want to search.</small>
-                            </div>
-                            <button type="submit" className="btn btn-primary">Search</button>
-                        </form>
-                        </div>
-                            <div className="col-12-xs"><TableComponent list={this.props.nasaResult} header={['Title', 'Description', 'Date Created', 'Preview', 'Add To List']} buttonText="Add file to list" buttonColor="btn btn-success" /></div>
+            </div>
+    }
+}
 
-                        </div>
-                </Tab>
-        </Tabs>
-                }
-            }
-            
-            
+
+
 function mapDispatchToProps(dispatch: any) {
     return bindActionCreators({
-                    addFileToMediaList,
-                }, dispatch)
-            }
-            
+        addFileToMediaList,
+        searchForMedia,
+        editFile
+    }, dispatch)
+}
+
 const mapStateToProps = (state) => {
     return state.media;
-            }
-            
-export default connect(mapStateToProps, mapDispatchToProps)(MediaUploadComponent)
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(FormMediaUploadComponent)

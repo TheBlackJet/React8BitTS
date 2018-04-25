@@ -5,7 +5,8 @@ import {
     MEDIA_DOWNLOAD_FAILED,
     MEDIA_LIST_INITTIAL_APP_DATA_RETRIEVED,
     MEDIA_UPLOAD_FAILED,
-    MEDIA_UPLOAD_SUCCESSFULLY
+    MEDIA_UPLOAD_SUCCESSFULLY,
+    NASA_SEARCH_RESULT_RETRIEVED
 } from "../reducer-consts";
 
 const initialState: IMediaState = {
@@ -25,6 +26,11 @@ export const mediaState = (state: IMediaState = initialState, action: any) => {
                 ...state,
                 mediaList: action.payload,
             };
+        case NASA_SEARCH_RESULT_RETRIEVED:
+            return {
+                ...state,
+                nasaResult: action.data,
+            }
         case MEDIA_UPLOAD_SUCCESSFULLY:
             return state;
         default:

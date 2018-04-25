@@ -16,6 +16,10 @@ export const FIREBASE_CONFIG = {
   export const FIREBASE_DATA_TYPE = "application/json";
   export const FIREBASE_FOLDER = "media"; // folder that stores data
 
+  // button constants
+  export const BUTTON_ADD_FILE_TO_LIST = "Add file to list";
+  export const BUTTON_REMOVE = "Remove";
+
   // this is incomplete list, more to add later
   export const ACCEPTED_MIME_TYPES = [
     "audio/aac",
@@ -45,3 +49,11 @@ export const FIREBASE_CONFIG = {
     "audio/mp3",
     "image/gif",
   ];
+
+  export const PAGINATION = {
+    itemPerpage: 3,
+    marginPagesDisplayed: 2,
+    pageRangeDisplayed: 3
+  }
+
+  export const NO_RECORD = "No Record !. Please add more item to the list.";

@@ -10,9 +10,13 @@ export interface MediaUploadProps {
 export interface MediaUploadState {
     id: string;
     title: string;
+    searchString: string;
     description?: string;
     file?: any;
     fileType?: string;
     base64?: string;
     searchQuery?: string;
+    editMode?: boolean;
+    mediaList?: Array<any>;
+    fullUrl?: string;
 }

@@ -1,10 +1,12 @@
 import * as React from 'react';
 import { Provider } from 'react-redux';
 import { Store } from 'redux';
-import { History } from 'history';
+import { createBrowserHistory } from 'history';
+import { Router, Route, Redirect, Link } from 'react-router-dom';
 
 // import components
-import MediaUploadComponent from "./components/MediaUploadComponent";
+import FormMediaUploadComponent from "./components/FormMediaUploadComponent";
+import NasaMediaUploadComponent from "./components/NasaMediaUploadComponent";
 import MediaListComponent from "./components/MediaListComponent";
 
 interface Props {
@@ -16,18 +18,33 @@ export class App extends React.Component<Props, {}> {
 
   render() {
     const { store, history } = this.props;
+    const brsHistory = createBrowserHistory();
     return (
       <Provider store={store}>
-        <div className="container-fluid">
-          <div className="row wrapper">
-            <div className="col-6 media-upload-column">
-              <MediaUploadComponent />
-            </div>
-            <div className="col-6 media-list-column">
-              <MediaListComponent />
+        <Router history={brsHistory}>
+          <div>
+
+            <nav className="navbar navbar-inverse">
+              <div className="container-fluid">
+                <div className="navbar-header">
+                  <a className="navbar-brand" href="#">NFQ React demo</a>
+                </div>
+                <ul className="nav navbar-nav">
+                  <li><Link to="/">Add Media file by Form</Link></li>
+                  <li><Link to="/nasa">Add Media file from NASA API</Link></li>
+                  <li><Link to="/list">Add Media file by Form</Link></li>
+                </ul>
+              </div>
+            </nav>
+            <hr />
+            <div className="container-fluid">
+              <Route exact path="/" component={FormMediaUploadComponent} />
+              <Route exact path="/nasa" component={NasaMediaUploadComponent} />
+              <Route exact path="/list" component={MediaListComponent} />
+              <Route exact path="/edit/:id" component={FormMediaUploadComponent} />
             </div>
           </div>
-        </div>
+        </Router>
       </Provider>
     );
   }

@@ -7,9 +7,42 @@ body {
 }
 
 .container{
-		
+	
 }
 
 .local-media-upload, .nasa-media-upload{
 	padding: 20px;
+}
+
+.search-box{
+	margin-bottom: 20px;
+}
+
+DIV.table 
+{
+    display:table;
+}
+FORM.tr, DIV.tr
+{
+    display:table-row;
+}
+SPAN.td
+{
+    display:table-cell;
+}
+
+.pagination{
+	cursor: pointer;
+	border: 1px royalblue solid;
+	.previous, .active, .break-me, .next{
+		padding: 10px;
+	}
+
+	.active{
+		font-weight: bold;
+	}
+
+	li{
+		padding: 10px;
+	}
 }

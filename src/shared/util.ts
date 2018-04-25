@@ -87,3 +87,24 @@ export const convertISOStringToDate = (str: string, format: string = 'DD-MM-YYYY
     const dateComponent = date.utc().format(format);
     return dateComponent;
 }
+
+export const removeByKey = (array, params) => {
+    array.some(function (item, index) {
+        return (array[index][params.key] === params.value) ? !!(array.splice(index, 1)) : false;
+    });
+    return array;
+}
+
+
+export const calculatePageRangeForPagination = (itemArray: Array < any >, currentPage: number, limit: number) =>{
+    // simple logic for pagination
+    const numberOfEndingItem: number = currentPage * limit;
+    const numberOfBeginningItem: number = numberOfEndingItem - limit;
+    const items: Array<any> = [];
+    itemArray.forEach((item, index) => {
+        if (index >= numberOfBeginningItem && index < numberOfEndingItem)
+            items.push(item);
+
+    })
+    return items;
+}

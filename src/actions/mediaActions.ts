@@ -5,7 +5,8 @@ import {
     MEDIA_DOWNLOAD_FAILED,
     MEDIA_LIST_INITTIAL_APP_DATA_RETRIEVED,
     MEDIA_UPLOAD_FAILED,
-    MEDIA_UPLOAD_SUCCESSFULLY
+    MEDIA_UPLOAD_SUCCESSFULLY,
+    NASA_SEARCH_RESULT_RETRIEVED
 } from "../reducer-consts";
 import {
     ACCEPTED_MIME_TYPES,
@@ -23,7 +24,8 @@ import {
     getFileAsDataURL,
     generateId,
     exportToCSV,
-    getBlobFromFile
+    getBlobFromFile,
+    removeByKey
 } from "../shared/util";
 
 import { IMediaItem, IMediaState, IMediaList } from "../typings/app";
@@ -47,13 +49,13 @@ export const addFileToMediaList = (data: MediaUploadState) => {
 
     return (dispatch, getState) => {
         // add to the image list object json
-        const mediaState : IMediaState = getState().media;
-        const contentList : Array<IMediaItem> = mediaState.mediaList;
+        const mediaState: IMediaState = getState().media;
+        const contentList: Array<IMediaItem> = mediaState.mediaList;
         const fileExtension: string = data.file.name.replace(/^.*\./, '');
         const randomId: string = generateId();
         const fileName = FIREBASE_FOLDER + "/" + randomId + "." + fileExtension;
         const getFileData = getFileAsDataURL(data.file)
-            .then((base64Data:any) => {
+            .then((base64Data: any) => {
                 return fetch(base64Data).then(resp => resp.blob());
             })
             .then(res => {
@@ -89,11 +91,95 @@ export const addFileToMediaList = (data: MediaUploadState) => {
     }
 }
 
+export const editFile = (data: MediaUploadState) => {
+    return (dispatch, getState) => {
+        // add to the image list object json
+        const mediaState: IMediaState = getState().media;
+        const contentList: Array<IMediaItem> = mediaState.mediaList;
+        const randomId: string = generateId();
+
+        // if the user selected the file
+
+        if (data.file == undefined) {
+            _.map(contentList, item => {
+                if (item.id == data.id) {
+                    item.title = data.title;
+                    item.description = data.description;
+                }
+            })
+
+            fireBase.setFileReference(FIREBASE_DATA_FILE);
+            return fireBase.putFileStringToServer(contentList, FIREBASE_DATA_TYPE)
+                .then(result => {
+                    dispatch({
+                        type: MEDIA_DATA_LIST_UPDATE,
+                        data: contentList
+                    })
+                })
+                .catch((err) => {
+                    dispatch({
+                        type: MEDIA_UPLOAD_FAILED,
+                        filename: data.file.name
+                    })
+                });
+        } else {
+            const fileExtension: string = data.file.name.replace(/^.*\./, '');
+            const fileName = FIREBASE_FOLDER + "/" + randomId + "." + fileExtension;
+            const foundObj = _.find(contentList, { id: data.id });
+            fireBase.setFileReference(foundObj.url);
+            return fireBase.deleteFile()
+                .then(result => {
+                    return getFileAsDataURL(data.file)
+                })
+                .then((base64Data: any) => {
+                    return fetch(base64Data).then(resp => resp.blob());
+                })
+                .then(res => {
+                    fireBase.setFileReference(fileName);
+                    return fireBase.putFileToServer(res, data.fileType);
+                })
+                .then(result => {
+                    debugger
+                    // build another array
+                    const newArray : Array<IMediaItem> = [];
+                    contentList.forEach(item => {
+                        if (item.id != data.id){
+                            newArray.push(item);
+                        }
+                    })
+                    newArray.push(<IMediaItem>{
+                        id: randomId,
+                        title: data.title,
+                        description: data.description,
+                        dateCreated: (new Date()).toISOString(),
+                        url: fileName,
+                        fullUrl: result.metadata.downloadURLs[0],
+                        type: data.fileType
+                    });
+
+                    fireBase.setFileReference(FIREBASE_DATA_FILE);
+                    return fireBase.putFileStringToServer(newArray, FIREBASE_DATA_TYPE)
+                })
+                .then(result => {
+                    dispatch({
+                        type: MEDIA_DATA_LIST_UPDATE,
+                        data: contentList
+                    })
+                })
+                .catch((err) => {
+                    dispatch({
+                        type: MEDIA_UPLOAD_FAILED,
+                        filename: data.file.name
+                    })
+                });
+        }
+    }
+}
+
 
 export const deleteMedia = (id: string, fileLocation: string) => {
     return (dispatch, getState) => {
         // delete the media file
-        debugger
         fireBase.setFileReference(fileLocation);
         fireBase.deleteFile().then(result => {
             // update the data file
@@ -110,7 +196,7 @@ export const deleteMedia = (id: string, fileLocation: string) => {
             return fireBase.putFileStringToServer(newContentList, FIREBASE_DATA_TYPE)
         })
             .then(data => {
-                
+
             })
             .catch(err => {
             })
@@ -140,4 +226,37 @@ export const getInitialData = () => {
             })
     }
 
+}
+
+export const searchForMedia = (query: string) => {
+    return (dispatch, getState) => {
+        return fetch(NASA_IMAGES_URL + "/search?q=" + _.trim(query)).then(resp => resp.text())
+            .then((data) => {
+                const parsedData: INasaData = JSON.parse(data);
+                const returnedData: Array<IMediaItem> = _.map(parsedData.collection.items, (item) => {
+                    const dataItem: Datum = item.data[0]; // mandatory element
+                    const link: Link = item.links[0]; // mandatory element
+                    return <IMediaItem>{
+                        id: generateId(10),
+                        title: dataItem.title,
+                        description: dataItem.description,
+                        dateCreated: dataItem.date_created,
+                        thumbnailUrl: _.isEmpty(link.href) ? "" : link.href,
+                        fullUrl: _.isEmpty(link.href) ? "" : link.href,
+                        base64: ""
+                    };
+                })
+
+                dispatch({
+                    type: NASA_SEARCH_RESULT_RETRIEVED,
+                    data: returnedData // get the first 5 item
+                });
+            })
+            .catch(err => {
+                dispatch({
+                    type: MEDIA_DOWNLOAD_FAILED,
+                    filename: err
+                })
+            })
+    }
 }

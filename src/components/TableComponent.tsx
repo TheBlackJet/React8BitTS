@@ -1,9 +1,11 @@
 import React from "react";
 import ReactPaginate from 'react-paginate';
+import { Link } from 'react-router-dom';
+import _ from "lodash";
 
 import { connect } from "react-redux";
 import { bindActionCreators } from 'redux';
-import { FIREBASE_FOLDER } from "../app-config-constants";
+import { FIREBASE_FOLDER, PAGINATION, BUTTON_ADD_FILE_TO_LIST, BUTTON_REMOVE, NO_RECORD } from "../app-config-constants";
 
 import { deleteMedia } from "../actions/mediaActions";
 
@@ -12,7 +14,8 @@ import {
     convertISOStringToDate,
     getCurrentDate,
     getFileAsDataURL,
-    generateId
+    generateId,
+    calculatePageRangeForPagination
 } from "../shared/util";
 import { IMediaItem } from '../typings/app';
 
@@ -39,31 +42,32 @@ class TableComponent extends React.Component<TableProps, {}> {
     constructor(props) {
         super(props);
         this.state = {
-            activePage: 15
+            activePage: 1,
+            pageItems: [],
+            totalItems: [],
         };
     }
 
-    remove(id: string) {
-        alert(id);
-    }
+    handlePageChange(event) {
+        this.setState({
+            activePage: event.selected + 1
+        })
 
-
-    handlePageChange() {
-        alert("OK");
     }
 
     tableCall(item: any, type: string) {
-        debugger
-        if (this.props.buttonText == "Remove") {
+        if (this.props.buttonText == BUTTON_REMOVE) {
             this.props.deleteMedia(item.id, item.url);
         }
     }
 
-    render() {
-        if (!this.props.list) {
-            <div> No Record !</div>
-        }
 
+
+    render() {
+        if (this.props.list.length == 0) {
+            return <div>{NO_RECORD}</div>
+        }
+        const numOfPage = this.props.list.length / PAGINATION.itemPerpage; // calculate total pages needed for paging
         return (
             <div className="row-xs-12">
                 <div className="col-xs-12">
@@ -78,47 +82,30 @@ class TableComponent extends React.Component<TableProps, {}> {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {this.props.list.map((item: IMediaItem) => {
-                                        if (false) {
-                                            return <tr key={item.id}>
-
-                                                <td><input value={item.title} /></td>
-                                                <td><textarea>{item.description}</textarea></td>
-                                                <td>{convertISOStringToDate(item.dateCreated)}</td>
-                                                <td><img width="100" height="100" src={item.fullUrl + "?cache=" + generateId()} /> <input type="file" /></td>
-                                                <td><button type="button" onClick={this.tableCall.bind(this, item, this.props.buttonText)} className={this.props.buttonColor}>{this.props.buttonText}</button></td>
-                                                <td><button type="button" onClick={() => { }} className={this.props.buttonColor}>Edit</button></td>
-                                            </tr>
-                                        }
-                                        else {
-                                            return <tr key={item.id}>
-                                                <td>{item.title}</td>
-                                                <td>{item.description}</td>
-                                                <td>{convertISOStringToDate(item.dateCreated)}</td>
-                                                <td>{(false) && <video width="320" height="240" controls>
-                                                    <source src={item.fullUrl} type={item.type} />
-                                                    Your browser does not support the video tag.
+                                    {calculatePageRangeForPagination(this.props.list, this.state.activePage, PAGINATION.itemPerpage).map((item: IMediaItem) => {
+                                        return <tr key={item.id}>
+                                            <td>{item.title}</td>
+                                            <td>{item.description}</td>
+                                            <td>{convertISOStringToDate(item.dateCreated)}</td>
+                                            <td>{(false) && <video width="320" height="240" controls>
+                                                <source src={item.fullUrl} type={item.type} />
+                                                Your browser does not support the video tag.
                                                     </video>}
 
-                                                    {(false) &&
-                                                        <img width="100" height="100" src={item.fullUrl + "?cache=" + generateId()} />
-                                                    }
-
-                                                    {(true) && <audio controls>
-                                                        <source src={item.fullUrl + "?cache=" + generateId()} type={item.type} />
-                                                        Your browser does not support the audio element.
+                                                {(false) &&
+                                                    <img width="100" height="100" src={item.fullUrl + "?cache=" + generateId()} />
+                                                }
+                                                {(true) && <audio controls>
+                                                    <source src={item.fullUrl + "?cache=" + generateId()} type={item.type} />
+                                                    Your browser does not support the audio element.
                                                         </audio>
-
-                                                    }
-
-
-                                                </td>
-                                                <td><button type="button" onClick={this.tableCall.bind(this, item, this.props.buttonText)} className={this.props.buttonColor}>{this.props.buttonText}</button></td>
-                                                <td><button type="button" onClick={() => { }} className={this.props.buttonColor}>Edit</button></td>
-                                            </tr>
-                                        }
-
-
+                                                }
+                                            </td>
+                                            <td>
+                                                <div><button type="button" onClick={this.tableCall.bind(this, item, this.props.buttonText)} className={this.props.buttonColor}>{this.props.buttonText}</button></div>
+                                                {(this.props.buttonText !== BUTTON_ADD_FILE_TO_LIST) && <div><Link to={"/edit/" + item.id}><button type="button" className={this.props.buttonColor}>Edit</button></Link></div>}
+                                            </td>
+                                        </tr>
                                     }, this)}
                                 </tbody>
                             </table>
@@ -131,10 +118,10 @@ class TableComponent extends React.Component<TableProps, {}> {
                         nextLabel={"next"}
                         breakLabel={<a href="">...</a>}
                         breakClassName={"break-me"}
-                        pageCount={20}
-                        marginPagesDisplayed={2}
-                        pageRangeDisplayed={5}
-                        onPageChange={this.handlePageChange}
+                        pageCount={numOfPage}
+                        marginPagesDisplayed={PAGINATION.marginPagesDisplayed}
+                        pageRangeDisplayed={PAGINATION.pageRangeDisplayed}
+                        onPageChange={this.handlePageChange.bind(this)}
                         containerClassName={"pagination"}
                         subContainerClassName={"pages pagination"}
                         activeClassName={"active"} />

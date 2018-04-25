@@ -16,7 +16,7 @@ import TableComponent from "./TableComponent";
 class MediaListComponent extends React.Component<MediaListProps, {}> {
 
     private fileUpload: any = null;
-    private header: Array<string> = ['Title', 'Description', 'Date Created', 'Preview', 'Remove', 'Edit'];
+    private header: Array<string> = ['Title', 'Description', 'Date Created', 'Preview', 'Option(s)'];
 
     constructor(props) {
         super(props);
