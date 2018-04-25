@@ -49,9 +49,9 @@ export const addFileToMediaList = (data: MediaUploadState) => {
         // add to the image list object json
         const mediaState : IMediaState = getState().media;
         const contentList : Array<IMediaItem> = mediaState.mediaList;
-        const fileName = FIREBASE_FOLDER + "/" + data.file.name;
         const fileExtension: string = data.file.name.replace(/^.*\./, '');
         const randomId: string = generateId();
+        const fileName = FIREBASE_FOLDER + "/" + randomId + "." + fileExtension;
         const getFileData = getFileAsDataURL(data.file)
             .then((base64Data:any) => {
                 return fetch(base64Data).then(resp => resp.blob());
@@ -66,7 +66,7 @@ export const addFileToMediaList = (data: MediaUploadState) => {
                     title: data.title,
                     description: data.description,
                     dateCreated: (new Date()).toISOString(),
-                    url: FIREBASE_FOLDER + "/" + randomId + "." + fileExtension,
+                    url: fileName,
                     fullUrl: result.metadata.downloadURLs[0],
                     type: data.fileType
                 });
@@ -78,10 +78,6 @@ export const addFileToMediaList = (data: MediaUploadState) => {
                 dispatch({
                     type: MEDIA_DATA_LIST_UPDATE,
                     data: contentList
-                });
-                dispatch({
-                    type: MEDIA_UPLOAD_SUCCESSFULLY,
-                    filename: data.file.name
                 })
             })
             .catch((err) => {
@@ -97,11 +93,11 @@ export const addFileToMediaList = (data: MediaUploadState) => {
 export const deleteMedia = (id: string, fileLocation: string) => {
     return (dispatch, getState) => {
         // delete the media file
+        debugger
         fireBase.setFileReference(fileLocation);
         fireBase.deleteFile().then(result => {
-            debugger
             // update the data file
-            const contentList = getState().appState.contentList;
+            const contentList = getState().media.mediaList;
             const toDelete = new Set([id]);
             const newContentList = contentList.filter(obj => !toDelete.has(obj.id));
 
@@ -114,9 +110,34 @@ export const deleteMedia = (id: string, fileLocation: string) => {
             return fireBase.putFileStringToServer(newContentList, FIREBASE_DATA_TYPE)
         })
             .then(data => {
-
+                
             })
             .catch(err => {
             })
     }
+}
+
+
+export const getInitialData = () => {
+
+    return (dispatch, getState) => {
+        fireBase.downloadDataURLFromServer(FIREBASE_DATA_FILE)
+            .then(url => {
+                return fetch(url).then(resp => resp.text());
+            })
+            .then(result => {
+                //exportToCSV(result);
+                dispatch({
+                    type: MEDIA_LIST_INITTIAL_APP_DATA_RETRIEVED,
+                    payload: JSON.parse(result)
+                })
+            })
+            .catch(err => {
+                dispatch({
+                    type: MEDIA_DOWNLOAD_FAILED,
+                    filename: err
+                })
+            })
+    }
+
 }

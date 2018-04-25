@@ -34,6 +34,7 @@
     "lodash": "^4.17.5",
     "moment": "^2.22.1",
     "react": "16.2.0",
+    "react-bootstrap-tabs": "^1.0.2",
     "react-dom": "16.2.0",
     "react-paginate": "^5.2.2",
     "react-redux": "5.0.6",

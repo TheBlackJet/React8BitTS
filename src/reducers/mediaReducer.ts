@@ -8,17 +8,25 @@ import {
     MEDIA_UPLOAD_SUCCESSFULLY
 } from "../reducer-consts";
 
-const initialState : IMediaState = {
-    mediaList: []
+const initialState: IMediaState = {
+    mediaList: [],
+    nasaResult: []
 }
 
-export const mediaState = (state : IMediaState = initialState, action : any) => {
+export const mediaState = (state: IMediaState = initialState, action: any) => {
     switch (action.type) {
         case MEDIA_DATA_LIST_UPDATE:
             return {
                 ...state, // 1 level immutBLW
                 mediaList: action.data,
             };
+        case MEDIA_LIST_INITTIAL_APP_DATA_RETRIEVED:
+            return {
+                ...state,
+                mediaList: action.payload,
+            };
+        case MEDIA_UPLOAD_SUCCESSFULLY:
+            return state;
         default:
             return state
     }

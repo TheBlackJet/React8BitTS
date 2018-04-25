@@ -1,11 +1,11 @@
 export interface IAppState {
     global?: IStateGlobal;
     media?: IMediaState;
-    nasa?: INasaState;
 }
 
 export interface IMediaState {
-    mediaList: Array<IMediaItem>
+    mediaList: Array<IMediaItem>;
+    nasaResult?: Array<IMediaItem>;
 }
 
 export interface INasaState {

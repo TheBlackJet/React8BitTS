@@ -13,16 +13,17 @@ interface Props {
 }
 
 export class App extends React.Component<Props, {}> {
+
   render() {
     const { store, history } = this.props;
     return (
       <Provider store={store}>
         <div className="container-fluid">
           <div className="row wrapper">
-            <div className="col-4 media-upload-column">
+            <div className="col-6 media-upload-column">
               <MediaUploadComponent />
             </div>
-            <div className="col-8 media-list-column">
+            <div className="col-6 media-list-column">
               <MediaListComponent />
             </div>
           </div>

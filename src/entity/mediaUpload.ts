@@ -4,6 +4,7 @@ export interface MediaUploadProps {
     fileUpload?: any;
     file?: string;
     addFileToMediaList?: Function;
+    searchForMedia?: Function;
 }
 
 export interface MediaUploadState {

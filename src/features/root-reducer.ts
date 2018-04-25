@@ -4,5 +4,5 @@ import { mediaState } from "../reducers/mediaReducer";
 
 export const rootReducer = combineReducers({
   global: globalState,
-  media: mediaState
+  media: mediaState,
 });

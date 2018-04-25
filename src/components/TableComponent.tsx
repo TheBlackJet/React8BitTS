@@ -1,19 +1,28 @@
 import React from "react";
 import ReactPaginate from 'react-paginate';
+
+import { connect } from "react-redux";
+import { bindActionCreators } from 'redux';
+import { FIREBASE_FOLDER } from "../app-config-constants";
+
+import { deleteMedia } from "../actions/mediaActions";
+
+
 import {
     convertISOStringToDate,
     getCurrentDate,
     getFileAsDataURL,
     generateId
 } from "../shared/util";
+import { IMediaItem } from '../typings/app';
 
 interface TableProps {
-    list: Array<any>;
+    list?: Array<any>;
     header: Array<string>;
     buttonText: string;
     buttonColor: string;
-    tableCallBack: Function;
     callBackType?: string;
+    deleteMedia: Function;
 }
 
 interface Item {
@@ -25,7 +34,7 @@ interface Item {
 
 //interface ITableComponent
 
-export default class TableComponent extends React.Component<TableProps, {}> {
+class TableComponent extends React.Component<TableProps, {}> {
 
     constructor(props) {
         super(props);
@@ -41,6 +50,13 @@ export default class TableComponent extends React.Component<TableProps, {}> {
 
     handlePageChange() {
         alert("OK");
+    }
+
+    tableCall(item: any, type: string) {
+        debugger
+        if (this.props.buttonText == "Remove") {
+            this.props.deleteMedia(item.id, item.url);
+        }
     }
 
     render() {
@@ -62,7 +78,7 @@ export default class TableComponent extends React.Component<TableProps, {}> {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {this.props.list.map((item: any) => {
+                                    {this.props.list.map((item: IMediaItem) => {
                                         if (false) {
                                             return <tr key={item.id}>
 
@@ -70,8 +86,8 @@ export default class TableComponent extends React.Component<TableProps, {}> {
                                                 <td><textarea>{item.description}</textarea></td>
                                                 <td>{convertISOStringToDate(item.dateCreated)}</td>
                                                 <td><img width="100" height="100" src={item.fullUrl + "?cache=" + generateId()} /> <input type="file" /></td>
-                                                <td><button type="button" onClick={this.props.tableCallBack.bind(this, item, this.props.buttonText)} className={this.props.buttonColor}>{this.props.buttonText}</button></td>
-                                                <td><button type="button" onClick={this.props.tableCallBack.bind(this, item, this.props.buttonText)} className={this.props.buttonColor}>Edit</button></td>
+                                                <td><button type="button" onClick={this.tableCall.bind(this, item, this.props.buttonText)} className={this.props.buttonColor}>{this.props.buttonText}</button></td>
+                                                <td><button type="button" onClick={() => { }} className={this.props.buttonColor}>Edit</button></td>
                                             </tr>
                                         }
                                         else {
@@ -79,9 +95,26 @@ export default class TableComponent extends React.Component<TableProps, {}> {
                                                 <td>{item.title}</td>
                                                 <td>{item.description}</td>
                                                 <td>{convertISOStringToDate(item.dateCreated)}</td>
-                                                <td><img width="100" height="100" src={item.fullUrl + "?cache=" + generateId()} /></td>
-                                                <td><button type="button" onClick={this.props.tableCallBack.bind(this, item, this.props.buttonText)} className={this.props.buttonColor}>{this.props.buttonText}</button></td>
-                                                <td><button type="button" onClick={this.props.tableCallBack.bind(this, item, this.props.buttonText)} className={this.props.buttonColor}>Edit</button></td>
+                                                <td>{(false) && <video width="320" height="240" controls>
+                                                    <source src={item.fullUrl} type={item.type} />
+                                                    Your browser does not support the video tag.
+                                                    </video>}
+
+                                                    {(false) &&
+                                                        <img width="100" height="100" src={item.fullUrl + "?cache=" + generateId()} />
+                                                    }
+
+                                                    {(true) && <audio controls>
+                                                        <source src={item.fullUrl + "?cache=" + generateId()} type={item.type} />
+                                                        Your browser does not support the audio element.
+                                                        </audio>
+
+                                                    }
+
+
+                                                </td>
+                                                <td><button type="button" onClick={this.tableCall.bind(this, item, this.props.buttonText)} className={this.props.buttonColor}>{this.props.buttonText}</button></td>
+                                                <td><button type="button" onClick={() => { }} className={this.props.buttonColor}>Edit</button></td>
                                             </tr>
                                         }
 
@@ -111,3 +144,11 @@ export default class TableComponent extends React.Component<TableProps, {}> {
     }
 
 }
+
+function mapDispatchToProps(dispatch: any) {
+    return bindActionCreators({
+        deleteMedia,
+    }, dispatch)
+}
+
+export default connect(null, mapDispatchToProps)(TableComponent);
