@@ -4,8 +4,14 @@ import { bindActionCreators } from 'redux';
 import { FireBase, getFileAsDataURL, exportToCSV } from '../shared/utility-functions';
 import { FIREBASE_CONFIG } from "../app-config-constants";
 // import actions
-import { addFileToTheList, getInitialData, searchForMedia, addNasaMediaFileToList } from "../actions/app";
-import { ACCEPTED_MIME_TYPES,NASA_IMAGES_URL, NASA_API_KEY } from "../app-config-constants";
+import {
+    addFileToTheList,
+    getInitialData,
+    searchForMedia,
+    addNasaMediaFileToList,
+    deleteMedia
+} from "../actions/app";
+import { ACCEPTED_MIME_TYPES, NASA_IMAGES_URL, NASA_API_KEY } from "../app-config-constants";
 import _ from "lodash";
 // import components
 import { TableComponent } from "./TableComponent";
@@ -26,7 +32,7 @@ interface IHomeState {
     title: string,
     description: string,
     file: any,
-    fileType:string,
+    fileType: string,
     base64: string,
     searchQuery: string;
 }
@@ -35,7 +41,7 @@ class Home extends React.Component<HomeProps, {}> {
 
     constructor(props: any) {
         super(props);
-        this.state  = {
+        this.state = {
             id: '',
             title: '',
             description: '',
@@ -67,14 +73,16 @@ class Home extends React.Component<HomeProps, {}> {
 
     }
 
-    searchByQuery(e: any){
+    searchByQuery(e: any) {
         e.preventDefault();
         this.props.searchForMedia(this.state.searchQuery);
     }
 
-    tableCallBack(dataObj: any, type: string){
-        if (type != "Remove"){
+    tableCallBack(dataObj: any, type: string) {
+        if (type != "Remove") {
             this.props.addNasaMediaFileToList(dataObj);
+        } else {
+            this.props.deleteMedia(dataObj.id, dataObj.url);
         }
     }
 
@@ -141,9 +149,9 @@ class Home extends React.Component<HomeProps, {}> {
                                 <button type="submit" className="btn btn-primary">Search</button>
                             </form>
                         </div>
-                        <div className="col"><TableComponent list={this.props.appState.nasaData} header={['Title','Description','Date Created','Preview','Add To List']} buttonText="Add file to list" buttonColor="btn btn-success" tableCallBack={this.tableCallBack} /></div>
+                        <div className="col"><TableComponent list={this.props.appState.nasaData} header={['Title', 'Description', 'Date Created', 'Preview', 'Add To List']} buttonText="Add file to list" buttonColor="btn btn-success" tableCallBack={this.tableCallBack} /></div>
                     </div>
-                    <div className="col"><TableComponent list={this.props.appState.contentList} header={['Title','Description','Date Created','Preview','Remove']}  buttonText="Remove" buttonColor="btn btn-danger"  tableCallBack={this.tableCallBack}  /></div>
+                    <div className="col"><TableComponent list={this.props.appState.contentList} header={['Title', 'Description', 'Date Created', 'Preview', 'Remove', 'Edit']} buttonText="Remove" buttonColor="btn btn-danger" tableCallBack={this.tableCallBack} /></div>
                 </div>
             </div>
         );
@@ -151,11 +159,12 @@ class Home extends React.Component<HomeProps, {}> {
 }
 
 function mapDispatchToProps(dispatch) {
-    return bindActionCreators({ 
-        addFileToTheList, 
+    return bindActionCreators({
+        addFileToTheList,
         getInitialData,
         searchForMedia,
-        addNasaMediaFileToList
+        addNasaMediaFileToList,
+        deleteMedia
     }, dispatch)
 }
 

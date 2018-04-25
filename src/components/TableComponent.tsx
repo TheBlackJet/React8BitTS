@@ -75,13 +75,30 @@ export class TableComponent extends React.Component<ITableProps, {}> {
                             </thead>
                             <tbody>
                                 {this.props.list.map((item: any) => {
-                                    return <tr key={item.id}>
-                                        <td>{item.title}</td>
-                                        <td>{item.description}</td>
-                                        <td>{convertISOStringToDate(item.dateCreated)}</td>
-                                        <td><img width="100" height="100" src={item.fullUrl+"?cache="+generateId()}/></td>
-                                        <td><button type="button" onClick={this.props.tableCallBack.bind(this, item, this.props.buttonText)}  className={this.props.buttonColor}>{this.props.buttonText}</button></td>
-                                    </tr>
+                                    if (true) {
+                                        return <tr key={item.id}>
+
+                                            <td><input value={item.title} /></td>
+                                            <td><textarea>{item.description}</textarea></td>
+                                            <td>{convertISOStringToDate(item.dateCreated)}</td>
+                                            <td><img width="100" height="100" src={item.fullUrl + "?cache=" + generateId()} /> <input type="file"/></td>
+                                            <td><button type="button" onClick={this.props.tableCallBack.bind(this, item, this.props.buttonText)} className={this.props.buttonColor}>{this.props.buttonText}</button></td>
+                                            <td><button type="button" onClick={this.props.tableCallBack.bind(this, item, this.props.buttonText)} className={this.props.buttonColor}>Edit</button></td>
+                                        </tr>
+                                    }
+                                    else {
+                                        return <tr key={item.id}>
+
+                                            <td>{item.title}</td>
+                                            <td>{item.description}</td>
+                                            <td>{convertISOStringToDate(item.dateCreated)}</td>
+                                            <td><img width="100" height="100" src={item.fullUrl + "?cache=" + generateId()} /></td>
+                                            <td><button type="button" onClick={this.props.tableCallBack.bind(this, item, this.props.buttonText)} className={this.props.buttonColor}>{this.props.buttonText}</button></td>
+                                            <td><button type="button" onClick={this.props.tableCallBack.bind(this, item, this.props.buttonText)} className={this.props.buttonColor}>Edit</button></td>
+                                        </tr>
+                                    }
+
+
                                 }, this)}
                             </tbody>
                         </table>

@@ -1,5 +1,5 @@
 import _ from "lodash";
-import 
+import moment from "moment";
 import {
     APP_MEDIA_RETRIEVED,
     APP_INITTIAL_DATA_RETRIEVED,
@@ -20,7 +20,8 @@ import {
     getFileAsDataURL,
     generateId,
     FireBase,
-    exportToCSV
+    exportToCSV,
+    getBlobFromFile
 } from "../shared/utility-functions";
 
 import { IMediaItem } from "../typings/app";
@@ -54,17 +55,21 @@ export const addFileToTheList = (data: any) => {
         const fileName = FIREBASE_FOLDER + "/" + data.file.name;
         const fileExtension: string = data.file.name.replace(/^.*\./, '');
         const randomId: string = generateId();
-        
-        // upload media file to clould storage
-        fireBase.setFileReference(fileName);
-        fireBase.putFileToServer(data.file, data.fileType)
+        const getFileData = getFileAsDataURL(data.file)
+            .then((base64Data:any) => {
+                return fetch(base64Data).then(resp => resp.blob());
+            })
+            .then(res => {
+                fireBase.setFileReference(fileName);
+                return fireBase.putFileToServer(res, data.fileType);
+            })
             .then(result => {
                 debugger
                 contentList.push(<IMediaItem>{
                     id: randomId,
                     title: data.title,
                     description: data.description,
-                    dateCreated: new Date.now().toISOString(),
+                    dateCreated: (new Date()).toISOString(),
                     url: FIREBASE_FOLDER + "/" + randomId + "." + fileExtension,
                     fullUrl: result.metadata.downloadURLs[0]
                 });
@@ -88,6 +93,7 @@ export const addFileToTheList = (data: any) => {
                 })
             })
             .catch((err) => {
+                console.log(err);
                 dispatch({
                     type: APP_MEDIA_UPLOAD_FAILED,
                     filename: data.file.name
@@ -210,8 +216,30 @@ export const addNasaMediaFileToList = (dataObj: any) => {
     }
 }
 
-export const deleteMedia = (id: string, fileLocation : string) => {
+export const deleteMedia = (id: string, fileLocation: string) => {
     return (dispatch, getState) => {
-        debugger
+        // delete the media file
+        fireBase.setFileReference(fileLocation);
+        fireBase.deleteFile().then(result => {
+            debugger
+            // update the data file
+            const contentList = getState().appState.contentList;
+            const toDelete = new Set([id]);
+            const newContentList = contentList.filter(obj => !toDelete.has(obj.id));
+
+            // update the state list
+            dispatch({
+                type: APP_UPDATE_CONTENT_LIST,
+                data: newContentList
+            });
+            fireBase.setFileReference(FIREBASE_DATA_FILE);
+            return fireBase.putFileStringToServer(newContentList, "application/json")
+        })
+            .then(data => {
+
+            })
+            .catch(err => {
+                debugger
+            })
     }
 }

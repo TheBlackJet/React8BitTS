@@ -31,7 +31,7 @@ export class FireBase<IFireBase> {
         this.folderRef = null;
         this.firebase = firebase;
 
-        if (this.firebase.apps.length === 0) {
+        if (this.firebase.apps.length === 0) { // dont re innitialize
             // init sirebase app
             this.firebase.initializeApp(this.FIREBASE_CONFIG);
             // init firebase storage
@@ -43,28 +43,39 @@ export class FireBase<IFireBase> {
     }
 
 
-    getFullURL(){
+    getFullURL() {
         if (_.isEmpty(this.fileRef)) return;
         return this.fileRef.getMetadata();
     }
 
-    setFileReference(fileRef) {
+    setFileReference(fileRef: string) {
         if (_.isEmpty(this.storage)) return;
-        this.fileRef = this.storage.ref(fileRef);
+        const mediaArray: Array<string> = fileRef.split('/');
+        if (mediaArray.length != 2) return;
+        this.storageRef.child(_.first(mediaArray));
+        this.fileRef = this.storageRef.child(fileRef);
     }
 
     putFileToServer(data, fileType) {
         if (_.isEmpty(this.fileRef)) return;
-        var metadata = {
-            contentType: "image/jpeg",
+        const metadata = {
+            contentType: fileType,
         };
 
         return this.fileRef.put(data, metadata);
     }
 
+    putBase64UrlStringToServer(data : string, fileType : string) {
+        if (_.isEmpty(this.fileRef)) return;
+        const metadata = {
+            contentType: fileType,
+        };
+        return this.fileRef.putString(data, 'base64', metadata); // return a promise
+    }
+
     putFileStringToServer(data, fileType) {
         if (_.isEmpty(this.fileRef)) return;
-        var metadata = {
+        const metadata = {
             contentType: fileType,
         };
 
@@ -74,6 +85,11 @@ export class FireBase<IFireBase> {
     downloadDataURLFromServer(file) {
         if (_.isEmpty(this.storageRef)) return;
         return this.storageRef.child(file).getDownloadURL(); // return a promise
+    }
+
+    deleteFile() {
+        if (_.isEmpty(this.fileRef)) return;
+        return this.fileRef.delete();
     }
 
 }
@@ -105,7 +121,7 @@ export const getFileAsDataURL = (file: any) => {
         var reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = () => {
-            resolve (reader.result);
+            resolve(reader.result);
         };
         reader.onerror = (error) => {
             reject(error);
@@ -114,6 +130,21 @@ export const getFileAsDataURL = (file: any) => {
 
     return promise;
 
+}
+
+export const getBlobFromFile = (file: any) => {
+    const promise = new Promise((resolve, reject) => {
+        var reader = new FileReader();
+        reader.readAsText(file);
+        reader.onload = () => {
+            resolve(reader.result);
+        };
+        reader.onerror = (error) => {
+            reject(error);
+        };
+    });
+
+    return promise;
 }
 
 export const getCurrentDate = () => {
