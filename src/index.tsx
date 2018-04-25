@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 
 import { App } from './app';
-import { store, browserHistory, epicMiddleware } from './store';
+import { store, browserHistory } from './store';
 
 /* Style Import */
 import "./styles/bootstrap/bootstrap.scss"
@@ -42,12 +42,6 @@ if (process.env.NODE_ENV === 'production') {
     module.hot.accept('./features/root-reducer', () => {
       const newRootReducer = require('./features/root-reducer').default;
       store.replaceReducer(newRootReducer);
-    });
-
-    // epics
-    module.hot.accept('./features/root-epic', () => {
-      const newRootEpic = require('./features/root-epic').default;
-      epicMiddleware.replaceEpic(newRootEpic);
     });
 
   }

@@ -13,6 +13,7 @@ export const FIREBASE_CONFIG = {
 
   // main data file that list all the file info
   export const FIREBASE_DATA_FILE = "media/data.json";
+  export const FIREBASE_DATA_TYPE = "application/json";
   export const FIREBASE_FOLDER = "media"; // folder that stores data
 
   // this is incomplete list, more to add later

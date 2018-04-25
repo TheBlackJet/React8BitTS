@@ -4,8 +4,9 @@ import { createEpicMiddleware } from 'redux-observable';
 import { routerMiddleware as createRouterMiddleware } from 'react-router-redux';
 import { createBrowserHistory } from 'history';
 
-import { rootReducer, AppState } from 'Features/root-reducer';
-import { rootEpic } from 'Features/root-epic';
+import { rootReducer } from 'Features/root-reducer';
+
+import { IAppState } from './typings/app';
 
 const composeEnhancers = (
   process.env.NODE_ENV === 'development' &&
@@ -15,7 +16,7 @@ const composeEnhancers = (
 export const browserHistory = createBrowserHistory();
 export const routerMiddleware = createRouterMiddleware(browserHistory);
 
-function configureStore(initialState?: AppState) {
+function configureStore(initialState?: IAppState) {
   // configure middlewares
   const middlewares = [
     routerMiddleware,
@@ -34,7 +35,12 @@ function configureStore(initialState?: AppState) {
 }
 
 // pass an optional param to rehydrate state on app start
-export const store = configureStore();
+const initialAppState: IAppState = {
+    
+}
+
+
+export const store = configureStore(initialAppState);
 
 // export store singleton instance
 export default store;
