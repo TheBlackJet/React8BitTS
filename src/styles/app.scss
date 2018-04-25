@@ -1,0 +1,58 @@
+
+* {margin: 0; padding: 0;}
+
+body {
+	font-family: montserrat, arial, verdana;
+}
+
+.pagination{
+	border: 1px saddlebrown solid;
+	.previous, .active, .break-me, .next{
+		padding: 10px;
+	}
+
+	.active{
+		font-weight: bold;
+	}
+
+	li{
+		padding: 10px;
+	}
+}
+
+.container{
+	margin-top: 30px;
+
+	.wrapper{
+
+		.media-upload-column{
+			margin-right: 10%;
+			.local-media-upload{
+
+			}
+
+		}
+	}
+
+
+h2 {
+	text-align: center;
+  }
+  
+  table caption {
+	  padding: .5em 0;
+  }
+  
+  @media screen and (max-width: 767px) {
+	table caption {
+	  border-bottom: 1px solid #ddd;
+	}
+  }
+  
+  .p {
+	text-align: center;
+	padding-top: 140px;
+	font-size: 14px;
+  }
+
+}
