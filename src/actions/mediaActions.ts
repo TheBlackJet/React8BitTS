@@ -198,10 +198,6 @@ export const editFile = (data: MediaUploadState) => {
                 })
                 .catch((err) => {
                     dispatch({
-                        type: APP_LOADER_HIDE,
-                        path: "/list"
-                    })
-                    dispatch({
                         type: MEDIA_UPLOAD_FAILED,
                         filename: data.file.name
                     })
