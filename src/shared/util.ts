@@ -7,6 +7,7 @@ import download from "downloadjs";
 import moment from "moment";
 
 export const exportToCSV = (jsonData: any) => {
+    debugger
     if (!jsonData) return;
     const Json2csvParser = Parser;
     const fields = ['title', 'description', 'date created'];;
@@ -14,8 +15,8 @@ export const exportToCSV = (jsonData: any) => {
 
     try {
         const parser = new Json2csvParser(opts);
-        const csv = parser.parse(JSON.parse(jsonData));
-        //download(csv, "data.csv", "application/vnd.ms-excel");
+        const csv = parser.parse(jsonData);
+        download(csv, "data.csv", "application/vnd.ms-excel");
     } catch (err) {
         console.error(err);
     }
@@ -96,7 +97,7 @@ export const removeByKey = (array, params) => {
 }
 
 
-export const calculatePageRangeForPagination = (itemArray: Array < any >, currentPage: number, limit: number) =>{
+export const calculatePageRangeForPagination = (itemArray: Array<any>, currentPage: number, limit: number) => {
     // simple logic for pagination
     const numberOfEndingItem: number = currentPage * limit;
     const numberOfBeginningItem: number = numberOfEndingItem - limit;
@@ -107,4 +108,15 @@ export const calculatePageRangeForPagination = (itemArray: Array < any >, curren
 
     })
     return items;
+}
+
+export const mediaFileIdentifier = (fileType: string) => {
+    if (fileType.includes("video"))
+        return "video";
+    if (fileType.includes("audio"))
+        return "audio";
+    if (fileType.includes("image"))
+        return "image";
+
+    return "image";
 }

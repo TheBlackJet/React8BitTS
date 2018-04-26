@@ -5,9 +5,14 @@ import _ from "lodash";
 
 import { connect } from "react-redux";
 import { bindActionCreators } from 'redux';
-import { FIREBASE_FOLDER, PAGINATION, BUTTON_ADD_FILE_TO_LIST, BUTTON_REMOVE, NO_RECORD } from "../app-config-constants";
+import { FIREBASE_FOLDER, 
+    PAGINATION, 
+    BUTTON_ADD_FILE_TO_LIST, 
+    BUTTON_REMOVE, 
+    NO_RECORD,
+    MEDIA_FILE_TYPE } from "../app-config-constants";
 
-import { deleteMedia } from "../actions/mediaActions";
+import { deleteMedia, addNasaMediaFileToList } from "../actions/mediaActions";
 
 
 import {
@@ -15,7 +20,8 @@ import {
     getCurrentDate,
     getFileAsDataURL,
     generateId,
-    calculatePageRangeForPagination
+    calculatePageRangeForPagination,
+    mediaFileIdentifier
 } from "../shared/util";
 import { IMediaItem } from '../typings/app';
 
@@ -56,8 +62,11 @@ class TableComponent extends React.Component<TableProps, {}> {
     }
 
     tableCall(item: any, type: string) {
+        debugger
         if (this.props.buttonText == BUTTON_REMOVE) {
             this.props.deleteMedia(item.id, item.url);
+        }else{
+            this.props.addNasaMediaFileToList(item);
         }
     }
 
@@ -87,15 +96,15 @@ class TableComponent extends React.Component<TableProps, {}> {
                                             <td>{item.title}</td>
                                             <td>{item.description}</td>
                                             <td>{convertISOStringToDate(item.dateCreated)}</td>
-                                            <td>{(false) && <video width="320" height="240" controls>
+                                            <td>{(mediaFileIdentifier(item.type) == MEDIA_FILE_TYPE.VIDEO) && <video width="320" height="240" controls>
                                                 <source src={item.fullUrl} type={item.type} />
                                                 Your browser does not support the video tag.
                                                     </video>}
 
-                                                {(false) &&
+                                                {(mediaFileIdentifier(item.type) == MEDIA_FILE_TYPE.IMAGE) &&
                                                     <img width="100" height="100" src={item.fullUrl + "?cache=" + generateId()} />
                                                 }
-                                                {(true) && <audio controls>
+                                                {(mediaFileIdentifier(item.type) == MEDIA_FILE_TYPE.AUDIO) && <audio controls>
                                                     <source src={item.fullUrl + "?cache=" + generateId()} type={item.type} />
                                                     Your browser does not support the audio element.
                                                         </audio>
@@ -103,7 +112,8 @@ class TableComponent extends React.Component<TableProps, {}> {
                                             </td>
                                             <td>
                                                 <div><button type="button" onClick={this.tableCall.bind(this, item, this.props.buttonText)} className={this.props.buttonColor}>{this.props.buttonText}</button></div>
-                                                {(this.props.buttonText !== BUTTON_ADD_FILE_TO_LIST) && <div><Link to={"/edit/" + item.id}><button type="button" className={this.props.buttonColor}>Edit</button></Link></div>}
+                                                <br/>
+                                                {(this.props.buttonText !== BUTTON_ADD_FILE_TO_LIST) && <div><Link to={"/edit/" + item.id}><button type="button" className={this.props.secondButtonColor}>{this.props.secondButtonText}</button></Link></div>}
                                             </td>
                                         </tr>
                                     }, this)}
@@ -135,6 +145,7 @@ class TableComponent extends React.Component<TableProps, {}> {
 function mapDispatchToProps(dispatch: any) {
     return bindActionCreators({
         deleteMedia,
+        addNasaMediaFileToList
     }, dispatch)
 }
 

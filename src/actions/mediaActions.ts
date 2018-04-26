@@ -6,14 +6,17 @@ import {
     MEDIA_LIST_INITTIAL_APP_DATA_RETRIEVED,
     MEDIA_UPLOAD_FAILED,
     MEDIA_UPLOAD_SUCCESSFULLY,
-    NASA_SEARCH_RESULT_RETRIEVED
+    NASA_SEARCH_RESULT_RETRIEVED,
+    APP_LOADER_SHOW,
+    APP_LOADER_HIDE
 } from "../reducer-consts";
 import {
     ACCEPTED_MIME_TYPES,
     FIREBASE_DATA_FILE,
     FIREBASE_DATA_TYPE,
     FIREBASE_FOLDER,
-    NASA_IMAGES_URL
+    NASA_IMAGES_URL,
+    NASA_DEFAULT_IMAGE_TYPE
 } from "../app-config-constants";
 import {
     FireBase,
@@ -49,6 +52,9 @@ export const addFileToMediaList = (data: MediaUploadState) => {
 
     return (dispatch, getState) => {
         // add to the image list object json
+        dispatch({
+            type: APP_LOADER_SHOW
+        })
         const mediaState: IMediaState = getState().media;
         const contentList: Array<IMediaItem> = mediaState.mediaList;
         const fileExtension: string = data.file.name.replace(/^.*\./, '');
@@ -80,6 +86,11 @@ export const addFileToMediaList = (data: MediaUploadState) => {
                 dispatch({
                     type: MEDIA_DATA_LIST_UPDATE,
                     data: contentList
+                })
+
+                dispatch({
+                    type: APP_LOADER_HIDE,
+                    path: "/list"
                 })
             })
             .catch((err) => {
@@ -139,11 +150,10 @@ export const editFile = (data: MediaUploadState) => {
                     return fireBase.putFileToServer(res, data.fileType);
                 })
                 .then(result => {
-                    debugger
                     // build another array
-                    const newArray : Array<IMediaItem> = [];
+                    const newArray: Array<IMediaItem> = [];
                     contentList.forEach(item => {
-                        if (item.id != data.id){
+                        if (item.id != data.id) {
                             newArray.push(item);
                         }
                     })
@@ -199,6 +209,10 @@ export const deleteMedia = (id: string, fileLocation: string) => {
 
             })
             .catch(err => {
+                dispatch({
+                    type: MEDIA_UPLOAD_FAILED,
+                    filename: FIREBASE_DATA_FILE
+                })
             })
     }
 }
@@ -230,27 +244,48 @@ export const getInitialData = () => {
 
 export const searchForMedia = (query: string) => {
     return (dispatch, getState) => {
+        dispatch({
+            type: APP_LOADER_SHOW
+        })
         return fetch(NASA_IMAGES_URL + "/search?q=" + _.trim(query)).then(resp => resp.text())
             .then((data) => {
                 const parsedData: INasaData = JSON.parse(data);
-                const returnedData: Array<IMediaItem> = _.map(parsedData.collection.items, (item) => {
+                const videoFileJson: Array<{ link: string, index: number }> = [];
+                const returnedData: Array<IMediaItem> = [];
+                _.forEach(parsedData.collection.items, (item, index) => {
                     const dataItem: Datum = item.data[0]; // mandatory element
                     const link: Link = item.links[0]; // mandatory element
-                    return <IMediaItem>{
-                        id: generateId(10),
-                        title: dataItem.title,
-                        description: dataItem.description,
-                        dateCreated: dataItem.date_created,
-                        thumbnailUrl: _.isEmpty(link.href) ? "" : link.href,
-                        fullUrl: _.isEmpty(link.href) ? "" : link.href,
-                        base64: ""
-                    };
+                    // check for video file
+                    if (link.href.includes(".srt")) {
+                        videoFileJson.push({ link: item.href, index: index });
+                    } else {
+                        returnedData.push(<IMediaItem>{
+                            id: generateId(10),
+                            title: dataItem.title,
+                            description: dataItem.description,
+                            dateCreated: dataItem.date_created,
+                            thumbnailUrl: _.isEmpty(link.href) ? "" : link.href,
+                            fullUrl: _.isEmpty(link.href) ? "" : link.href,
+                            base64: "",
+                            type: NASA_DEFAULT_IMAGE_TYPE
+                        });
+                    }
+
                 })
 
                 dispatch({
                     type: NASA_SEARCH_RESULT_RETRIEVED,
                     data: returnedData // get the first 5 item
                 });
+
+                dispatch({
+                    type: APP_LOADER_HIDE,
+                    path: "/list"
+                })
+                // return Observable.from(videoFileJson).concatMap(data => {
+
+                //     return Observable.of({});
+                // }).reduce((acc, x) => acc, 1)
             })
             .catch(err => {
                 dispatch({
@@ -258,5 +293,61 @@ export const searchForMedia = (query: string) => {
                     filename: err
                 })
             })
+    }
+}
+
+export const addNasaMediaFileToList = (dataObj: any) => {
+    return (dispatch, getState) => {
+        const contentList = getState().media.mediaList;
+        const fileExtension: string = dataObj.thumbnailUrl.replace(/^.*\./, '');
+        const randomId: string = generateId();
+        const fileLocation : string = FIREBASE_FOLDER + "/" + randomId + "." + fileExtension
+        return fetch(dataObj.thumbnailUrl).then(resp => {
+            return resp.blob() // return blob from response
+        })
+            .then(file => {
+                fireBase.setFileReference(fileLocation);
+                return fireBase.putFileToServer(file, "image/" + fileExtension)
+            })
+            .then(result => {
+                dispatch({
+                    type: MEDIA_UPLOAD_SUCCESSFULLY,
+                    filename: fileLocation
+                })
+
+                return fireBase.getFullURL();
+            })
+            .then(metaData => {
+                contentList.push(<IMediaItem>{
+                    id: randomId,
+                    title: dataObj.title,
+                    description: dataObj.description,
+                    dateCreated: dataObj.dateCreated,
+                    url: fileLocation,
+                    fullUrl: metaData.downloadURLs[0],
+                    type: NASA_DEFAULT_IMAGE_TYPE
+                });
+
+                // update contentList state
+                dispatch({
+                    type: MEDIA_DATA_LIST_UPDATE,
+                    data: contentList
+                });
+
+                fireBase.setFileReference(FIREBASE_DATA_FILE);
+                return fireBase.putFileStringToServer(contentList, "application/json")
+            })
+            .then(result => {
+                dispatch({
+                    type: MEDIA_UPLOAD_SUCCESSFULLY,
+                    payload: fileLocation,
+                })
+            })
+            .catch(err => {
+                dispatch({
+                    type: MEDIA_UPLOAD_FAILED,
+                    filename: err
+                })
+            });
     }
 }

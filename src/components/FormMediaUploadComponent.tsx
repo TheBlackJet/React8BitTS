@@ -13,6 +13,7 @@ import {
 
 import { ACCEPTED_MIME_TYPES, NASA_IMAGES_URL, NASA_API_KEY } from "../app-config-constants";
 import { IAppState } from '../typings/app';
+import LoaderComponent from './LoaderComponent';
 
 
 
@@ -57,7 +58,8 @@ class FormMediaUploadComponent extends React.Component<MediaUploadProps, MediaUp
                 }
     
             }
-        }    
+        }   
+        
     }
 
     handleChange(e: any) {
@@ -94,7 +96,7 @@ class FormMediaUploadComponent extends React.Component<MediaUploadProps, MediaUp
 
     render() {
             return <div className="row-12-xs local-media-upload">
-                <form onSubmit={this.uploadFile.bind(this)}>
+                {!this.props.redirect && <form onSubmit={this.uploadFile.bind(this)}>
                     <div className="form-group">
                         <label htmlFor="title">Title</label>
                         <input type="text" className="form-control" id="title" aria-describedby="text" required placeholder="Enter title" onChange={this.handleChange.bind(this)} value={this.state.title} />
@@ -114,7 +116,9 @@ class FormMediaUploadComponent extends React.Component<MediaUploadProps, MediaUp
                     </div>
                     {!this.state.editMode && <button type="submit" className="btn btn-primary">Add new media</button>}
                     {this.state.editMode && <button type="submit" className="btn btn-primary">Edit</button>}
-                </form>
+                </form>}
+
+                {this.props.redirect && <LoaderComponent />}
             </div>
     }
 }
@@ -129,8 +133,9 @@ function mapDispatchToProps(dispatch: any) {
     }, dispatch)
 }
 
-const mapStateToProps = (state) => {
-    return state.media;
-}
+const mapStateToProps =  (state) => ({
+    media: state.media,
+    redirect: state.global.redirect,
+})
 
 export default connect(mapStateToProps, mapDispatchToProps)(FormMediaUploadComponent)

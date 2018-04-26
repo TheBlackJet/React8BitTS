@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import { bindActionCreators } from 'redux';
 import { Tabs, Tab } from 'react-bootstrap-tabs';
 import TableComponent from "./TableComponent";
+import LoaderComponent from "./LoaderComponent";
 
 import { addFileToMediaList, searchForMedia } from "../actions/mediaActions";
 
@@ -80,7 +81,8 @@ class NasaMediaUploadComponent extends React.Component<MediaUploadProps, MediaUp
 
 
     render() {
-        return <div className="row-12-xs nasa-media-upload">
+        return <div>
+            {!this.props.redirect && <div className="row-12-xs nasa-media-upload">
             <div className="col-12-xs search-box">
                 <form onSubmit={this.searchByQuery.bind(this)}>
                     <div className="form-group">
@@ -91,8 +93,11 @@ class NasaMediaUploadComponent extends React.Component<MediaUploadProps, MediaUp
                     <button type="submit" className="btn btn-primary">Search</button>
                 </form>
             </div>
-            <div className="col-12-xs"><TableComponent list={this.props.nasaResult} header={['Title', 'Description', 'Date Created', 'Preview', 'Add To List']} buttonText="Add file to list" buttonColor="btn btn-success" /></div>
+            <div className="col-12-xs"><TableComponent list={this.props.media.nasaResult} header={['Title', 'Description', 'Date Created', 'Preview', 'Add To List']} buttonText="Add file to list" buttonColor="btn btn-success" /></div>
+        </div>}
+        {this.props.redirect && <LoaderComponent />}
         </div>
+        
     }
 }
 
@@ -104,8 +109,9 @@ function mapDispatchToProps(dispatch: any) {
     }, dispatch)
 }
 
-const mapStateToProps = (state) => {
-    return state.media;
-}
+const mapStateToProps =  (state) => ({
+    media: state.media,
+    redirect: state.global.redirect,
+});
 
-export default connect(mapStateToProps, mapDispatchToProps)(NasaMediaUploadComponent)
+export default connect(mapStateToProps, mapDispatchToProps)(NasaMediaUploadComponent);

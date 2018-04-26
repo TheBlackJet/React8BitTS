@@ -7,11 +7,9 @@ body {
 }
 
 .container{
-	
-}
-
-.local-media-upload, .nasa-media-upload{
-	padding: 20px;
+	.local-media-upload, .nasa-media-upload{
+		padding: 20px;
+	}
 }
 
 .search-box{
@@ -45,4 +43,13 @@ SPAN.td
 	li{
 		padding: 10px;
 	}
+}
+
+.local-media-upload, .nasa-media-upload{
+	padding: 20px;
+}
+
+.loader{
+	font-size: 24px;
+	color: royalblue;
 }

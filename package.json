@@ -2,7 +2,7 @@
   "name": "react-redux-typescript-webpack-starter",
   "version": "0.1.0",
   "description": "React NFQ Demo",
-  "author": "",
+  "author": "Nguyen Le",
   "bugs": "",
   "license": "MIT",
   "main": "dist/app.js",

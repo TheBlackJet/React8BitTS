@@ -56,4 +56,13 @@ export const FIREBASE_CONFIG = {
     pageRangeDisplayed: 3
   }
 
-  export const NO_RECORD = "No Record !. Please add more item to the list.";
+  export const NO_RECORD = "No Record ! Please add more item to the list.";
+
+  export const MEDIA_FILE_TYPE = {
+    VIDEO: "video",
+    AUDIO: "audio",
+    IMAGE: "image",
+  }
+
+  export const NASA_DEFAULT_IMAGE_TYPE = "image/jpg";
+  export const NASA_DEFAULT_VIDEO_TYPE = "video/mp4";
