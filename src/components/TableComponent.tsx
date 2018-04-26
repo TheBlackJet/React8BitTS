@@ -80,6 +80,7 @@ class TableComponent extends React.Component<TableProps, {}> {
             <div className="row-xs-12">
                 <div className="col-xs-12">
                     <div className="col-xs-12">
+                    <div>Total {this.props.list.length} record(s) ! <br/></div>
                         <div className="table-responsive">
                             <table className="table table-bordered table-hover">
                                 <thead>
