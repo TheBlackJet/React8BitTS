@@ -32,6 +32,7 @@ class FormMediaUploadComponent extends React.Component<MediaUploadProps, MediaUp
     }
 
     componentWillMount() {
+        debugger
         const { match: { params: { id } } } = this.props;
         if (!_.isEmpty(id)) {
             const foundObj: MediaUploadState = _.find(this.props.media.mediaList, { id: id });
