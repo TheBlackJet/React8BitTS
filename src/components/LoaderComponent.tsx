@@ -1,26 +1,48 @@
 import React from "react";
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
-
+import { Redirect } from 'react-router';
+import { withRouter } from 'react-router-dom';
 
 //interface ITableComponent
 
-class LoaderComponent extends React.Component<{}, {}> {
+class LoaderComponent extends React.Component<{ LoaderProps }, {}> {
 
-    componentDidUpdate(){
-       // debugger
+    constructor(props: any) {
+        super(props);
+        this.state = {
+            defaultText: ""
+        }
+    }
+
+    componentWillMount() {
+
+
     }
 
 
+    showHideLogic() {
+        // if (this.props.global.text && !this.props.global.redirect) {
+        //     this.props.history.push("/list");
+        // }
+    }
+
     render() {
-       return <div className="row-12-xs loader">The request has been processed. Please wait for a few moment. Thank you! </div>
+
+        if (this.props.global.redirect) {
+            return <div className="row-12-xs loader" style={this.props.style}>{this.props.global.text}</div>
+        } else {
+            //this.showHideLogic();
+            return <div></div>
+        }
+
     }
 
 }
 
 function mapDispatchToProps(dispatch: any) {
     return bindActionCreators({
-        
+
     }, dispatch)
 }
 
@@ -28,4 +50,4 @@ const mapStateToProps = (state) => {
     return state;
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(LoaderComponent);
+export default connect(mapStateToProps, mapDispatchToProps)(withRouter(LoaderComponent));

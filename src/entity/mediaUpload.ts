@@ -19,4 +19,5 @@ export interface MediaUploadState {
     editMode?: boolean;
     mediaList?: Array<any>;
     fullUrl?: string;
+    text?: string;
 }

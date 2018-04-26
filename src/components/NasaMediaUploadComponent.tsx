@@ -26,7 +26,8 @@ class NasaMediaUploadComponent extends React.Component<MediaUploadProps, MediaUp
         this.state = {
             id: '',
             title: '',
-            searchString: ""
+            searchString: "",
+            text: ""
         }
     }
 
@@ -95,7 +96,7 @@ class NasaMediaUploadComponent extends React.Component<MediaUploadProps, MediaUp
             </div>
             <div className="col-12-xs"><TableComponent list={this.props.media.nasaResult} header={['Title', 'Description', 'Date Created', 'Preview', 'Add To List']} buttonText="Add file to list" buttonColor="btn btn-success" /></div>
         </div>}
-        {this.props.redirect && <LoaderComponent />}
+        <LoaderComponent />
         </div>
         
     }

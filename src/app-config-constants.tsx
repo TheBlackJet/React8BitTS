@@ -66,3 +66,9 @@ export const FIREBASE_CONFIG = {
 
   export const NASA_DEFAULT_IMAGE_TYPE = "image/jpg";
   export const NASA_DEFAULT_VIDEO_TYPE = "video/mp4";
+
+  export const MEDIA_FILE_BEING_ADDED = "The file now being added. Please wait for a few moment !";
+  export const RECORD_BEING_EDITTED = "The record now being editted. Please wait for a few moment !";
+  export const RECORD_BEING_DELETED = "The record now being deleted. Please wait for a few moment !";
+  export const RECORD_SEARCHING = "Searching for result... Please wait for a few moment !";
+  export const RECORD_BEING_ADDED = "The record now being added to the media list. Please wait for a few moment !";

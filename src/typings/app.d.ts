@@ -31,6 +31,7 @@ export interface IMediaList {
 export interface IStateGlobal {
     redirect: boolean;
     path: string;
+    text: string;
 }
 
 

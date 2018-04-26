@@ -16,7 +16,12 @@ import {
     FIREBASE_DATA_TYPE,
     FIREBASE_FOLDER,
     NASA_IMAGES_URL,
-    NASA_DEFAULT_IMAGE_TYPE
+    NASA_DEFAULT_IMAGE_TYPE,
+    MEDIA_FILE_BEING_ADDED,
+    RECORD_BEING_EDITTED,
+    RECORD_BEING_DELETED,
+    RECORD_SEARCHING,
+    RECORD_BEING_ADDED
 } from "../app-config-constants";
 import {
     FireBase,
@@ -41,7 +46,6 @@ import {
 import { MediaUploadState } from "../entity/mediaUpload";
 
 import { FIREBASE_CONFIG } from "../app-config-constants";
-import { Observable } from "rxjs/Observable";
 
 // init FireBase
 const fireBase = new FireBase();
@@ -53,7 +57,8 @@ export const addFileToMediaList = (data: MediaUploadState) => {
     return (dispatch, getState) => {
         // add to the image list object json
         dispatch({
-            type: APP_LOADER_SHOW
+            type: APP_LOADER_SHOW,
+            text: MEDIA_FILE_BEING_ADDED
         })
         const mediaState: IMediaState = getState().media;
         const contentList: Array<IMediaItem> = mediaState.mediaList;
@@ -105,7 +110,8 @@ export const addFileToMediaList = (data: MediaUploadState) => {
 export const editFile = (data: MediaUploadState) => {
     return (dispatch, getState) => {
         dispatch({
-            type: APP_LOADER_SHOW
+            type: APP_LOADER_SHOW,
+            text: RECORD_BEING_EDITTED
         })
         // add to the image list object json
         const mediaState: IMediaState = getState().media;
@@ -126,13 +132,14 @@ export const editFile = (data: MediaUploadState) => {
             return fireBase.putFileStringToServer(contentList, FIREBASE_DATA_TYPE)
                 .then(result => {
                     dispatch({
-                        type: MEDIA_DATA_LIST_UPDATE,
-                        data: contentList
-                    })
-                    dispatch({
                         type: APP_LOADER_HIDE,
                         path: "/list"
                     })
+                    dispatch({
+                        type: MEDIA_DATA_LIST_UPDATE,
+                        data: contentList
+                    })
+                    
                 })
                 .catch((err) => {
                     dispatch({
@@ -174,20 +181,26 @@ export const editFile = (data: MediaUploadState) => {
                         type: data.fileType
                     });
 
+
                     fireBase.setFileReference(FIREBASE_DATA_FILE);
                     return fireBase.putFileStringToServer(newArray, FIREBASE_DATA_TYPE)
                 })
                 .then(result => {
                     dispatch({
+                        type: APP_LOADER_HIDE,
+                        path: "/list"
+                    })
+                    dispatch({
                         type: MEDIA_DATA_LIST_UPDATE,
                         data: contentList
                     })
+                    
+                })
+                .catch((err) => {
                     dispatch({
                         type: APP_LOADER_HIDE,
                         path: "/list"
                     })
-                })
-                .catch((err) => {
                     dispatch({
                         type: MEDIA_UPLOAD_FAILED,
                         filename: data.file.name
@@ -200,6 +213,10 @@ export const editFile = (data: MediaUploadState) => {
 
 export const deleteMedia = (id: string, fileLocation: string) => {
     return (dispatch, getState) => {
+        dispatch({
+            type: APP_LOADER_SHOW,
+            text: RECORD_BEING_DELETED
+        })
         // delete the media file
         fireBase.setFileReference(fileLocation);
         fireBase.deleteFile().then(result => {
@@ -217,7 +234,10 @@ export const deleteMedia = (id: string, fileLocation: string) => {
             return fireBase.putFileStringToServer(newContentList, FIREBASE_DATA_TYPE)
         })
             .then(data => {
-
+                dispatch({
+                    type: APP_LOADER_HIDE,
+                    path: "/list"
+                })
             })
             .catch(err => {
                 dispatch({
@@ -256,7 +276,8 @@ export const getInitialData = () => {
 export const searchForMedia = (query: string) => {
     return (dispatch, getState) => {
         dispatch({
-            type: APP_LOADER_SHOW
+            type: APP_LOADER_SHOW,
+            text: RECORD_SEARCHING
         })
         return fetch(NASA_IMAGES_URL + "/search?q=" + _.trim(query)).then(resp => resp.text())
             .then((data) => {
@@ -293,10 +314,6 @@ export const searchForMedia = (query: string) => {
                     type: APP_LOADER_HIDE,
                     path: "/list"
                 })
-                // return Observable.from(videoFileJson).concatMap(data => {
-
-                //     return Observable.of({});
-                // }).reduce((acc, x) => acc, 1)
             })
             .catch(err => {
                 dispatch({
@@ -310,8 +327,9 @@ export const searchForMedia = (query: string) => {
 export const addNasaMediaFileToList = (dataObj: any) => {
     return (dispatch, getState) => {
         dispatch({
-            type: APP_LOADER_SHOW
-        })
+            type: APP_LOADER_SHOW,
+            text: RECORD_BEING_ADDED
+        });
         const contentList = getState().media.mediaList;
         const fileExtension: string = dataObj.thumbnailUrl.replace(/^.*\./, '');
         const randomId: string = generateId();
@@ -347,6 +365,10 @@ export const addNasaMediaFileToList = (dataObj: any) => {
                     type: MEDIA_DATA_LIST_UPDATE,
                     data: contentList
                 });
+                dispatch({
+                    type: APP_LOADER_HIDE,
+                    path: "/list"
+                });
 
                 fireBase.setFileReference(FIREBASE_DATA_FILE);
                 return fireBase.putFileStringToServer(contentList, FIREBASE_DATA_TYPE)
@@ -355,10 +377,6 @@ export const addNasaMediaFileToList = (dataObj: any) => {
                 dispatch({
                     type: MEDIA_UPLOAD_SUCCESSFULLY,
                     payload: fileLocation,
-                })
-                dispatch({
-                    type: APP_LOADER_HIDE,
-                    path: "/"
                 })
             })
             .catch(err => {

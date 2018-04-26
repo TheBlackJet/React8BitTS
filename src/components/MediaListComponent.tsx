@@ -11,6 +11,7 @@ import { ACCEPTED_MIME_TYPES, NASA_IMAGES_URL, NASA_API_KEY } from "../app-confi
 import { IAppState, IMediaItem } from '../typings/app';
 
 import TableComponent from "./TableComponent";
+import LoaderComponent from "./LoaderComponent";
 import { exportToCSV } from '../shared/util';
 import _ from 'lodash';
 import moment from "moment";
@@ -24,7 +25,10 @@ class MediaListComponent extends React.Component<MediaListProps, {}> {
     constructor(props) {
         super(props);
         this.state = {
-
+            style: {
+                
+            },
+            text: "The request has been processed. Please wait for a few moment. Thank you!"
         }
     }
 
@@ -50,6 +54,7 @@ class MediaListComponent extends React.Component<MediaListProps, {}> {
     }
 
     componentWillMount() {
+        // init data list
         this.props.getInitialData();
     }
 
@@ -57,7 +62,7 @@ class MediaListComponent extends React.Component<MediaListProps, {}> {
         return <div>
             {!this.props.redirect && <div><TableComponent list={this.props.media.mediaList} header={this.header} buttonText="Remove" buttonColor="btn btn-danger" secondButtonText="Edit" secondButtonColor="btn btn-info" />
             {(this.props.media.mediaList.length != 0) && <div><button type="button" onClick={this.exportPDF.bind(this)} className="btn btn-success">Export to CSV</button></div>}</div>}
-            {this.props.redirect && <LoaderComponent />}
+            <LoaderComponent />
         </div>;
     }
 }

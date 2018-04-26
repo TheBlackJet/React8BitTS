@@ -34,8 +34,8 @@ class FormMediaUploadComponent extends React.Component<MediaUploadProps, MediaUp
     componentWillMount() {
         const { match: { params: { id } } } = this.props;
         if (!_.isEmpty(id)) {
-            const foundObj : MediaUploadState = _.find(this.props.media.mediaList, { id: id });
-            if (foundObj){
+            const foundObj: MediaUploadState = _.find(this.props.media.mediaList, { id: id });
+            if (foundObj && !this.state.editMode) {
                 this.setState({
                     editMode: true,
                     id: foundObj.id,
@@ -43,23 +43,27 @@ class FormMediaUploadComponent extends React.Component<MediaUploadProps, MediaUp
                     description: foundObj.description,
                     fullUrl: foundObj.fullUrl
                 })
-            } 
+            }
         }
+    }
+
+    getDerivedStateFromProps(nextProps, prevState) {
+        debugger
     }
 
     uploadFile(evt: any) {
         evt.preventDefault();
-        if (this.state.editMode){
+        if (this.state.editMode) {
             this.props.editFile(this.state);
-        }else{
+        } else {
             if (this.state.file) {
                 if (this.props.addFileToMediaList) {
                     this.props.addFileToMediaList(this.state);
                 }
-    
+
             }
-        }   
-        
+        }
+
     }
 
     handleChange(e: any) {
@@ -80,7 +84,6 @@ class FormMediaUploadComponent extends React.Component<MediaUploadProps, MediaUp
             };
         }
         if (ACCEPTED_MIME_TYPES.indexOf(file.type) <= -1) {
-
             alert("Wrong file type! Please select another file");
             this.fileUpload.value = "";
             return;
@@ -95,32 +98,31 @@ class FormMediaUploadComponent extends React.Component<MediaUploadProps, MediaUp
 
 
     render() {
-        debugger
-            return <div className="row-12-xs local-media-upload">
-                {!this.props.redirect && <form onSubmit={this.uploadFile.bind(this)}>
-                    <div className="form-group">
-                        <label htmlFor="title">Title</label>
-                        <input type="text" className="form-control" id="title" aria-describedby="text" required placeholder="Enter title" onChange={this.handleChange.bind(this)} value={this.state.title} />
-                        <small id="text" className="form-text text-muted">Please enter the title of the media.</small>
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="description">Description</label>
-                        <textarea className="form-control" id="description" rows={3} onChange={this.handleChange.bind(this)} value={this.state.description}></textarea>
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="file">Select media ( accepted : video, image, audio file formats  )</label>
-                        <input type="file" required={!this.state.editMode} className="form-control-file" id="file" onChange={this.fileOnchange.bind(this)}
-                            ref={(ref) => this.fileUpload = ref} />
-                    </div>
-                    <div className="preview">
-                    
-                    </div>
-                    {!this.state.editMode && <button type="submit" className="btn btn-primary">Add new media</button>}
-                    {this.state.editMode && <button type="submit" className="btn btn-primary">Edit</button>}
-                </form>}
+        return <div className="row-12-xs local-media-upload">
+            {!this.props.global.redirect ? <form onSubmit={this.uploadFile.bind(this)}>
+                <div className="form-group">
+                    <label htmlFor="title">Title</label>
+                    <input type="text" className="form-control" id="title" aria-describedby="text" required placeholder="Enter title" onChange={this.handleChange.bind(this)} value={this.state.title} />
+                    <small id="text" className="form-text text-muted">Please enter the title of the media.</small>
+                </div>
+                <div className="form-group">
+                    <label htmlFor="description">Description</label>
+                    <textarea className="form-control" id="description" rows={3} onChange={this.handleChange.bind(this)} value={this.state.description}></textarea>
+                </div>
+                <div className="form-group">
+                    <label htmlFor="file">Select media ( accepted : video, image, audio file formats  )</label>
+                    <input type="file" required={!this.state.editMode} className="form-control-file" id="file" onChange={this.fileOnchange.bind(this)}
+                        ref={(ref) => this.fileUpload = ref} />
+                </div>
+                <div className="preview">
 
-                {this.props.redirect && <LoaderComponent />}
-            </div>
+                </div>
+                {!this.state.editMode && <button type="submit" className="btn btn-primary">Add new media</button>}
+                {this.state.editMode && <button type="submit" className="btn btn-primary">Edit</button>}
+            </form> : <div></div>}
+
+            <LoaderComponent />
+        </div>
     }
 }
 
@@ -134,9 +136,9 @@ function mapDispatchToProps(dispatch: any) {
     }, dispatch)
 }
 
-const mapStateToProps =  (state) => ({
+const mapStateToProps = (state) => ({
     media: state.media,
-    redirect: state.global.redirect,
+    global: state.global,
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(FormMediaUploadComponent)

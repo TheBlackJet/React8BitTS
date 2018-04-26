@@ -7,6 +7,7 @@
   "license": "MIT",
   "main": "dist/app.js",
   "scripts": {
+    "start": "node server.js",
     "clean": "rimraf dist",
     "build": "yarn run clean && webpack-dashboard -- webpack --config configs/webpack.config.js --env.build --env.sourceMap",
     "dev": "webpack-dev-server --config configs/webpack.config.js --open",
@@ -29,6 +30,7 @@
     "@types/lodash": "^4.14.107",
     "@types/react-router": "^4.0.24",
     "downloadjs": "^1.4.7",
+    "express": "^4.16.3",
     "firebase": "^4.13.1",
     "json-2-csv": "^2.2.0",
     "json2csv": "^4.1.2",

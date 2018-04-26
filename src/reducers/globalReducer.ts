@@ -4,7 +4,8 @@ import { APP_LOADER_HIDE, APP_LOADER_SHOW } from '../reducer-consts';
 
 const initialState : IStateGlobal = {
     redirect: false,
-    path: ""
+    path: "",
+    text:""
 }
 
 export const globalState = (state : IStateGlobal = initialState, action : any) => {
@@ -13,12 +14,15 @@ export const globalState = (state : IStateGlobal = initialState, action : any) =
         return {
             ...state, 
             redirect: false,
+            text: "",
             path: action.path
         };
         case APP_LOADER_SHOW: 
         return {
             ...state, 
+            text: action.text,
             redirect: true,
+            path: ""
         };
         default:
             return state

@@ -6,3 +6,13 @@ export const rootReducer = combineReducers({
   global: globalState,
   media: mediaState,
 });
+
+// const appReducer = combineReducers({
+//   global: globalState,
+//   media: mediaState,
+// })
+
+// const rootReducer = (state, action) => {
+
+//   return appReducer(state, action)
+// }
