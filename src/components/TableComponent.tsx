@@ -62,7 +62,6 @@ class TableComponent extends React.Component<TableProps, {}> {
     }
 
     tableCall(item: any, type: string) {
-        debugger
         if (this.props.buttonText == BUTTON_REMOVE) {
             this.props.deleteMedia(item.id, item.url);
         }else{

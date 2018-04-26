@@ -7,18 +7,8 @@ import { connect } from "react-redux";
 
 class LoaderComponent extends React.Component<{}, {}> {
 
-    constructor(props) {
-        super(props);
-        this.state = {
-            
-        };
-    }
-
     componentDidUpdate(){
-        //debugger
-        // if (this.props.redirect){
-        //     this.props.history.push(this.props.path);
-        // }
+       // debugger
     }
 
 

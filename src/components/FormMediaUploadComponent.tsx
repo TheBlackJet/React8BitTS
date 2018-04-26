@@ -34,7 +34,7 @@ class FormMediaUploadComponent extends React.Component<MediaUploadProps, MediaUp
     componentWillMount() {
         const { match: { params: { id } } } = this.props;
         if (!_.isEmpty(id)) {
-            const foundObj : MediaUploadState = _.find(this.props.mediaList, { id: id });
+            const foundObj : MediaUploadState = _.find(this.props.media.mediaList, { id: id });
             if (foundObj){
                 this.setState({
                     editMode: true,
@@ -95,6 +95,7 @@ class FormMediaUploadComponent extends React.Component<MediaUploadProps, MediaUp
 
 
     render() {
+        debugger
             return <div className="row-12-xs local-media-upload">
                 {!this.props.redirect && <form onSubmit={this.uploadFile.bind(this)}>
                     <div className="form-group">

@@ -30,7 +30,7 @@ class MediaListComponent extends React.Component<MediaListProps, {}> {
 
     exportPDF() {
         // re format csv the correct collumn
-        const reFormatCSV: Array<IMediaItem> = this.props.mediaList;
+        const reFormatCSV: Array<IMediaItem> = this.props.media.mediaList;
         _.map(reFormatCSV, ((item: IMediaItem) => {
             delete item.url;
             delete item.base64;
@@ -55,8 +55,9 @@ class MediaListComponent extends React.Component<MediaListProps, {}> {
 
     render() {
         return <div>
-            <TableComponent list={this.props.mediaList} header={this.header} buttonText="Remove" buttonColor="btn btn-danger" secondButtonText="Edit" secondButtonColor="btn btn-info" />
-            {(this.props.mediaList.length != 0) && <div><button type="button" onClick={this.exportPDF.bind(this)} className="btn btn-success">Export to CSV</button></div>}
+            {!this.props.redirect && <div><TableComponent list={this.props.media.mediaList} header={this.header} buttonText="Remove" buttonColor="btn btn-danger" secondButtonText="Edit" secondButtonColor="btn btn-info" />
+            {(this.props.media.mediaList.length != 0) && <div><button type="button" onClick={this.exportPDF.bind(this)} className="btn btn-success">Export to CSV</button></div>}</div>}
+            {this.props.redirect && <LoaderComponent />}
         </div>;
     }
 }
@@ -69,9 +70,10 @@ function mapDispatchToProps(dispatch: any) {
     }, dispatch)
 }
 
-const mapStateToProps = (state) => {
-    return state.media;
+const mapStateToProps =  (state) => ({
+    media: state.media,
+    redirect: state.global.redirect,
+});
 
-};
 
 export default connect(mapStateToProps, mapDispatchToProps)(MediaListComponent)

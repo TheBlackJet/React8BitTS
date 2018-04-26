@@ -104,6 +104,9 @@ export const addFileToMediaList = (data: MediaUploadState) => {
 
 export const editFile = (data: MediaUploadState) => {
     return (dispatch, getState) => {
+        dispatch({
+            type: APP_LOADER_SHOW
+        })
         // add to the image list object json
         const mediaState: IMediaState = getState().media;
         const contentList: Array<IMediaItem> = mediaState.mediaList;
@@ -125,6 +128,10 @@ export const editFile = (data: MediaUploadState) => {
                     dispatch({
                         type: MEDIA_DATA_LIST_UPDATE,
                         data: contentList
+                    })
+                    dispatch({
+                        type: APP_LOADER_HIDE,
+                        path: "/list"
                     })
                 })
                 .catch((err) => {
@@ -174,6 +181,10 @@ export const editFile = (data: MediaUploadState) => {
                     dispatch({
                         type: MEDIA_DATA_LIST_UPDATE,
                         data: contentList
+                    })
+                    dispatch({
+                        type: APP_LOADER_HIDE,
+                        path: "/list"
                     })
                 })
                 .catch((err) => {
@@ -298,6 +309,9 @@ export const searchForMedia = (query: string) => {
 
 export const addNasaMediaFileToList = (dataObj: any) => {
     return (dispatch, getState) => {
+        dispatch({
+            type: APP_LOADER_SHOW
+        })
         const contentList = getState().media.mediaList;
         const fileExtension: string = dataObj.thumbnailUrl.replace(/^.*\./, '');
         const randomId: string = generateId();
@@ -335,12 +349,16 @@ export const addNasaMediaFileToList = (dataObj: any) => {
                 });
 
                 fireBase.setFileReference(FIREBASE_DATA_FILE);
-                return fireBase.putFileStringToServer(contentList, "application/json")
+                return fireBase.putFileStringToServer(contentList, FIREBASE_DATA_TYPE)
             })
             .then(result => {
                 dispatch({
                     type: MEDIA_UPLOAD_SUCCESSFULLY,
                     payload: fileLocation,
+                })
+                dispatch({
+                    type: APP_LOADER_HIDE,
+                    path: "/"
                 })
             })
             .catch(err => {

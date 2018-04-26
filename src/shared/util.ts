@@ -7,7 +7,6 @@ import download from "downloadjs";
 import moment from "moment";
 
 export const exportToCSV = (jsonData: any) => {
-    debugger
     if (!jsonData) return;
     const Json2csvParser = Parser;
     const fields = ['title', 'description', 'date created'];;
